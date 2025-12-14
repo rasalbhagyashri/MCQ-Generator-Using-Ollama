@@ -34,6 +34,7 @@ Frontend (HTML + JavaScript)
 
 ## Folder Structure
 
+```text
 MCQ-Generator/
 ├── backend/
 │   ├── main.py
@@ -42,9 +43,13 @@ MCQ-Generator/
 │   ├── docx_utils.py
 │   ├── models.py
 │   └── requirements.txt
+│
 ├── frontend/
 │   └── index.html
+│
 └── README.md
+```
+
 
 ---
 
