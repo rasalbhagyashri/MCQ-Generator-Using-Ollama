@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MCQ Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+  <h1 class="text-2xl font-bold mb-4 text-center">MCQ Generator</h1>
+
+  <!-- API key not needed anymore, but kept for UI consistency -->
+
+  <input id="pdf" type="file" accept=".pdf" class="w-full mb-3">
+
+  <input id="count" type="number" value="2" min="1"
+    class="w-full border p-2 mb-3" placeholder="Number of Questions">
+
+  <!-- IMPORTANT: type="button" -->
+  <button
+    type="button"
+    onclick="generate()"
+    class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+    Generate MCQs
+  </button>
+
+  <p id="status" class="text-center mt-3 text-sm"></p>
+
+  <div id="downloads" class="hidden mt-4">
+    <a id="qLink" class="block text-blue-600 underline" target="_blank">
+      Download Question Paper
+    </a>
+    <a id="aLink" class="block text-blue-600 underline" target="_blank">
+      Download Answer Sheet
+    </a>
+  </div>
+</div>
+
+<script>
+async function generate() {
+  console.log("Generate button clicked");
+
+  const status = document.getElementById("status");
+  const pdf = document.getElementById("pdf");
+  const count = document.getElementById("count");
+  const downloads = document.getElementById("downloads");
+  const qLink = document.getElementById("qLink");
+  const aLink = document.getElementById("aLink");
+
+  if (!pdf.files.length) {
+    alert("Please upload a PDF file");
+    return;
+  }
+
+  status.textContent = "Generating MCQs...";
+  status.classList.remove("text-red-600");
+  downloads.classList.add("hidden");
+
+  const formData = new FormData();
+  formData.append("num_questions", count.value);
+  formData.append("pdf", pdf.files[0]);
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/generate", {
+      method: "POST",
+      body: formData
+    });
+
+    console.log("HTTP Status:", res.status);
+
+    const text = await res.text();
+    console.log("Raw response:", text);
+
+    if (!res.ok) {
+      throw new Error(text);
+    }
+
+    const data = JSON.parse(text);
+
+    qLink.href = `http://127.0.0.1:8000/download/${data.question_paper}`;
+    aLink.href = `http://127.0.0.1:8000/download/${data.answer_sheet}`;
+
+    downloads.classList.remove("hidden");
+    status.textContent = "MCQs generated successfully!";
+
+  } catch (err) {
+    console.error("Frontend error:", err);
+    status.textContent = "Error generating MCQs";
+    status.classList.add("text-red-600");
+  }
+}
+</script>
+
+</body>
+</html>
